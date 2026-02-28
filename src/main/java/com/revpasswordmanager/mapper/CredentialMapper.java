@@ -17,6 +17,9 @@ public class CredentialMapper {
         dto.setUsername(entity.getUsername());
         dto.setUrl(entity.getUrl());
         dto.setNotes(entity.getNotes());
+        dto.setCategory(entity.getCategory());
+        dto.setPasswordStrength(entity.getPasswordStrength());
+        dto.setIsFavorite(entity.getIsFavorite());
         return dto;
     }
 
@@ -30,6 +33,8 @@ public class CredentialMapper {
         entity.setUsername(dto.getUsername());
         entity.setUrl(dto.getUrl());
         entity.setNotes(dto.getNotes());
+        entity.setCategory(dto.getCategory());
+        entity.setIsFavorite(dto.getIsFavorite());
         return entity;
     }
 }
