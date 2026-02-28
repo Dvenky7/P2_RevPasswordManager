@@ -59,6 +59,15 @@ public class PasswordGeneratorServiceImpl implements IPasswordGeneratorService {
         return result.toString();
     }
 
+    public List<String> generatePasswords(int length, boolean useUpper, boolean useLower, boolean useDigits,
+            boolean useSpecial, boolean excludeSimilar, int quantity) {
+        List<String> passwords = new ArrayList<>();
+        for (int i = 0; i < quantity; i++) {
+            passwords.add(generatePassword(length, useUpper, useLower, useDigits, useSpecial, excludeSimilar));
+        }
+        return passwords;
+    }
+
     public String calculateStrength(String password) {
         int score = 0;
         if (password.length() >= 8)
@@ -83,4 +92,3 @@ public class PasswordGeneratorServiceImpl implements IPasswordGeneratorService {
         return "Very Strong";
     }
 }
-

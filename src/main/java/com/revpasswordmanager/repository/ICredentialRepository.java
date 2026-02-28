@@ -14,3 +14,4 @@ public interface ICredentialRepository extends JpaRepository<Credential, Long> {
     List<Credential> findByUserAndAccountNameContainingIgnoreCase(User user, String accountName);
 }
 
+

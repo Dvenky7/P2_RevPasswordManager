@@ -9,6 +9,8 @@ public interface IUserService {
 
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByUsernameWithSecurityQuestions(String username);
+
     Optional<User> findByEmail(String email);
 
     void updateMasterPassword(User user, String oldPassword, String newPassword);
@@ -20,4 +22,8 @@ public interface IUserService {
     boolean verifyPassword(User user, String rawPassword);
 
     User updateUser(User user);
+
+    void resetFailedAttempts(String username);
+
+    void incrementFailedAttempts(String username);
 }

@@ -12,3 +12,4 @@ public interface ISecurityQuestionRepository extends JpaRepository<SecurityQuest
     List<SecurityQuestion> findByUser(User user);
 }
 
+

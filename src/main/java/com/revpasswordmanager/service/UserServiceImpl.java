@@ -57,10 +57,17 @@ public class UserServiceImpl implements IUserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<User> findByUsernameWithSecurityQuestions(String username) {
+        return userRepository.findByUsernameWithSecurityQuestions(username);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -80,6 +87,7 @@ public class UserServiceImpl implements IUserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public boolean verifySecurityQuestions(String username, List<String> answers) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
@@ -106,6 +114,27 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setMasterPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void resetFailedAttempts(String username) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            user.setFailedAttempts(0);
+            user.setLastLoginAt(java.time.LocalDateTime.now());
+            userRepository.save(user);
+        });
+    }
+
+    @Transactional
+    public void incrementFailedAttempts(String username) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            int newAttempts = user.getFailedAttempts() + 1;
+            user.setFailedAttempts(newAttempts);
+            if (newAttempts >= 5) {
+                user.setAccountLocked(true);
+            }
+            userRepository.save(user);
+        });
     }
 
     public boolean verifyPassword(User user, String rawPassword) {

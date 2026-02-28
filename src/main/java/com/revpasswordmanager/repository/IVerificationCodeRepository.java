@@ -12,3 +12,4 @@ public interface IVerificationCodeRepository extends JpaRepository<VerificationC
     Optional<VerificationCode> findByUserAndCodeAndIsUsedFalse(User user, String code);
 }
 
+
