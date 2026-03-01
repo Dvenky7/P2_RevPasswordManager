@@ -7,13 +7,13 @@ import java.util.List;
 public interface IVaultService {
     List<CredentialDto> getCredentialsByUser(User user);
 
-    CredentialDto addCredential(User user, CredentialDto credentialDto) throws Exception;
+    CredentialDto addCredential(User user, CredentialDto credentialDto);
 
-    CredentialDto updateCredential(CredentialDto credentialDto) throws Exception;
+    CredentialDto updateCredential(CredentialDto credentialDto);
 
     void deleteCredential(Long id, User user);
 
-    String revealPassword(Long id, User user) throws Exception;
+    String revealPassword(Long id, User user);
 
     List<CredentialDto> searchCredentials(User user, String query);
 }

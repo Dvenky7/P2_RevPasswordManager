@@ -3,19 +3,24 @@ package com.revpasswordmanager.service;
 import com.revpasswordmanager.dto.UserRegistrationDto;
 import com.revpasswordmanager.entity.SecurityQuestion;
 import com.revpasswordmanager.entity.User;
+import com.revpasswordmanager.mapper.UserMapper;
 import com.revpasswordmanager.repository.IUserRepository;
+import com.revpasswordmanager.exception.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.revpasswordmanager.mapper.UserMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements IUserService {
+
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     private IUserRepository userRepository;
@@ -29,10 +34,12 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public User registerUser(UserRegistrationDto registrationDto) {
         if (userRepository.findByUsername(registrationDto.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            logger.warn("Registration failed: Username already exists - {}", registrationDto.getUsername());
+            throw new DuplicateUserException("Username already exists: " + registrationDto.getUsername());
         }
         if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            logger.warn("Registration failed: Email already exists - {}", registrationDto.getEmail());
+            throw new DuplicateUserException("Email already exists: " + registrationDto.getEmail());
         }
 
         User user = userMapper.toEntity(registrationDto);
@@ -54,7 +61,9 @@ public class UserServiceImpl implements IUserService {
         }
 
         user.setSecurityQuestions(securityQuestions);
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        logger.info("New user registered successfully: {}", savedUser.getUsername());
+        return savedUser;
     }
 
     @Transactional(readOnly = true)
@@ -77,8 +86,10 @@ public class UserServiceImpl implements IUserService {
         if (passwordEncoder.matches(oldPassword, user.getMasterPasswordHash())) {
             user.setMasterPasswordHash(passwordEncoder.encode(newPassword));
             userRepository.save(user);
+            logger.info("Master password updated for user: {}", user.getUsername());
         } else {
-            throw new RuntimeException("Old password does not match");
+            logger.warn("Password update failed for user: {}. Old password mismatch.", user.getUsername());
+            throw new InvalidCredentialsException("Old password does not match");
         }
     }
 
@@ -111,7 +122,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public void resetPassword(String username, String newPassword) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
         user.setMasterPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
@@ -132,6 +143,9 @@ public class UserServiceImpl implements IUserService {
             user.setFailedAttempts(newAttempts);
             if (newAttempts >= 5) {
                 user.setAccountLocked(true);
+                logger.error("Account LOCKED for user: {} due to {} failed attempts", username, newAttempts);
+            } else {
+                logger.warn("Failed login attempt #{} for user: {}", newAttempts, username);
             }
             userRepository.save(user);
         });

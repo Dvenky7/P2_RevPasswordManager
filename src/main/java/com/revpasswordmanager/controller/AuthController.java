@@ -4,6 +4,8 @@ import com.revpasswordmanager.dto.UserRegistrationDto;
 import com.revpasswordmanager.entity.User;
 import com.revpasswordmanager.service.IUserService;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,21 +19,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class AuthController {
 
+    private static final Logger logger = LogManager.getLogger(AuthController.class);
+
     @Autowired
     private IUserService userService;
 
     @GetMapping("/")
     public String index() {
+        logger.info("Accessing index page.");
         return "index";
     }
 
     @GetMapping("/login")
     public String login() {
+        logger.info("Accessing login page.");
         return "login";
     }
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
+        logger.info("Displaying registration form.");
         model.addAttribute("user", new UserRegistrationDto());
         return "register";
     }
@@ -39,13 +46,17 @@ public class AuthController {
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") UserRegistrationDto registrationDto,
             BindingResult bindingResult, Model model) {
+        logger.info("Attempting to register new user with username: {}", registrationDto.getUsername());
         if (bindingResult.hasErrors()) {
+            logger.warn("Registration form has errors for user: {}", registrationDto.getUsername());
             return "register";
         }
         try {
             userService.registerUser(registrationDto);
+            logger.info("User registered successfully: {}", registrationDto.getUsername());
             return "redirect:/login?success";
         } catch (Exception e) {
+            logger.error("Error during user registration for {}: {}", registrationDto.getUsername(), e.getMessage());
             model.addAttribute("error", e.getMessage());
             return "register";
         }
