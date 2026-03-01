@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>RevVault - Secure Password Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0f172a;
+            color: var(--text-main);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            background: radial-gradient(circle at top right, rgba(118, 75, 162, 0.3), transparent),
+                radial-gradient(circle at bottom left, rgba(102, 126, 234, 0.3), transparent);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .navbar {
+            padding: 20px 0;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: white !important;
+            letter-spacing: -1px;
+        }
+
+        .hero-content h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .btn-custom {
+            padding: 16px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            box-shadow: 0 10px 20px rgba(118, 75, 162, 0.3);
+        }
+
+        .btn-primary-gradient:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(118, 75, 162, 0.4);
+            color: white;
+        }
+
+        .btn-outline-glass {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .feature-grid {
+            margin-top: 80px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 30px;
+            transition: 0.3s;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .floating-elements span {
+            position: absolute;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-shield-halved me-2"></i>RevVault</a>
+            <div class="d-flex gap-3">
+                <a th:href="@{/login}" class="btn btn-outline-glass btn-sm px-4">Login</a>
+                <a th:href="@{/register}" class="btn btn-primary-gradient btn-sm px-4">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="floating-elements">
+            <span style="width: 300px; height: 300px; top: -150px; right: -150px;"></span>
+            <span style="width: 400px; height: 400px; bottom: -200px; left: -200px;"></span>
+        </div>
+
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7 hero-content">
+                    <div
+                        class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 border border-primary border-opacity-25">
+                        <i class="fas fa-sparkles me-1"></i> Enterprise Grade Security
+                    </div>
+                    <h1>Master Your Digital <br><span style="color: #818cf8">Security & Peace.</span></h1>
+                    <p>RevVault is the next-generation password manager designed to protect your enterprise credentials
+                        with AES-256 encryption and zero-knowledge architecture.</p>
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+                        <a th:href="@{/register}" class="btn btn-custom btn-primary-gradient">
+                            Create Free Account <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        <a th:href="@{/login}" class="btn btn-custom btn-outline-glass">
+                            Member Login
+                        </a>
+                    </div>
+
+                    <div class="feature-grid row g-4">
+                        <div class="col-md-4">
+                            <div class="feature-card">
+                                <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                                <h6>AES-256 Encryption</h6>
+                                <p class="small text-muted mb-0">Military-grade protection for every single entry.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card">
+                                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                                <h6>Instant Audit</h6>
+                                <p class="small text-muted mb-0">Identify weak and reused passwords in seconds.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card">
+                                <div class="feature-icon"><i class="fas fa-key"></i></div>
+                                <h6>PassGen Utility</h6>
+                                <p class="small text-muted mb-0">Generate unbreakable passwords with one click.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 d-none d-lg-block text-center">
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/password-security-5374465-4491710.png"
+                        alt="Security" class="img-fluid"
+                        style="max-height: 500px; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
