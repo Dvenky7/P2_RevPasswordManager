@@ -24,25 +24,28 @@ public class PasswordGeneratorController {
     }
 
     @PostMapping("/generate")
-    public String generate(@RequestParam(value = "length", defaultValue = "12") int length,
-            @RequestParam(value = "useUpper", defaultValue = "false") boolean useUpper,
-            @RequestParam(value = "useLower", defaultValue = "false") boolean useLower,
-            @RequestParam(value = "useDigits", defaultValue = "false") boolean useDigits,
-            @RequestParam(value = "useSpecial", defaultValue = "false") boolean useSpecial,
+    public String generate(@RequestParam(value = "length", defaultValue = "16") int length,
+            @RequestParam(value = "upper", defaultValue = "false") boolean useUpper,
+            @RequestParam(value = "lower", defaultValue = "false") boolean useLower,
+            @RequestParam(value = "digits", defaultValue = "false") boolean useDigits,
+            @RequestParam(value = "special", defaultValue = "false") boolean useSpecial,
             @RequestParam(value = "excludeSimilar", defaultValue = "false") boolean excludeSimilar,
-            @RequestParam(value = "quantity", defaultValue = "1") int quantity,
             Model model) {
 
         List<String> passwords = generatorService.generatePasswords(length, useUpper, useLower, useDigits, useSpecial,
-                excludeSimilar, quantity);
-        model.addAttribute("passwords", passwords);
+                excludeSimilar, 1);
+        String generatedPassword = passwords.isEmpty() ? "" : passwords.get(0);
+
+        model.addAttribute("generatedPassword", generatedPassword);
         model.addAttribute("length", length);
-        model.addAttribute("useUpper", useUpper);
-        model.addAttribute("useLower", useLower);
-        model.addAttribute("useDigits", useDigits);
-        model.addAttribute("useSpecial", useSpecial);
+        model.addAttribute("upper", useUpper);
+        model.addAttribute("lower", useLower);
+        model.addAttribute("digits", useDigits);
+        model.addAttribute("special", useSpecial);
         model.addAttribute("excludeSimilar", excludeSimilar);
-        model.addAttribute("quantity", quantity);
+
+        // Add strength for the template
+        model.addAttribute("strength", generatorService.calculateStrength(generatedPassword));
 
         return "password_generator";
     }

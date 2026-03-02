@@ -69,9 +69,9 @@ public class CredentialController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Authentication authentication, Model model) {
-        // Finding credential logic would normally be in service, but let's assume we
-        // can get it from service
-        // Need to add getCredentialById to IVaultService if it's missing
+        User user = userService.findByUsername(authentication.getName()).orElseThrow();
+        CredentialDto credential = vaultService.getCredentialById(id, user);
+        model.addAttribute("credential", credential);
         return "edit_credential";
     }
 }
