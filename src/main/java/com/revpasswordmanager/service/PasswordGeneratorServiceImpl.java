@@ -31,6 +31,11 @@ public class PasswordGeneratorServiceImpl implements IPasswordGeneratorService {
             charPool.append(SPECIAL);
 
         String pool = charPool.toString();
+        if (pool.isEmpty()) {
+            // Fallback to lowercase if nothing is selected
+            pool = LOWER;
+        }
+
         if (excludeSimilar) {
             for (char c : SIMILAR.toCharArray()) {
                 pool = pool.replace(String.valueOf(c), "");
@@ -38,7 +43,7 @@ public class PasswordGeneratorServiceImpl implements IPasswordGeneratorService {
         }
 
         if (pool.isEmpty()) {
-            throw new IllegalArgumentException("At least one character set must be selected");
+            throw new IllegalArgumentException("No characters available after excluding similar ones");
         }
 
         StringBuilder password = new StringBuilder();

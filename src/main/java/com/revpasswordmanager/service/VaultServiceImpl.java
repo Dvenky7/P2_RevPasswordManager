@@ -52,8 +52,9 @@ public class VaultServiceImpl implements IVaultService {
                     credential.getAccountName());
             return saved;
         } catch (Exception e) {
-            logger.error("Encryption failed while adding credential for user: {}", user.getUsername(), e);
-            throw new EncryptionException("Failed to encrypt password", e);
+            logger.error("Encryption failed while adding credential for user: {}. Details: {}", user.getUsername(),
+                    e.getMessage(), e);
+            throw new EncryptionException("Failed to encrypt password: " + e.getMessage(), e);
         }
     }
 
@@ -121,5 +122,14 @@ public class VaultServiceImpl implements IVaultService {
         return credentialRepository.findByUserAndAccountNameContainingIgnoreCase(user, query).stream()
                 .map(credentialMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public CredentialDto getCredentialById(Long id, User user) {
+        Credential credential = credentialRepository.findById(id)
+                .orElseThrow(() -> new CredentialNotFoundException("Credential not found with id: " + id));
+        if (!credential.getUser().getId().equals(user.getId())) {
+            throw new InvalidMasterPasswordException("Unauthorized access to credential");
+        }
+        return credentialMapper.toDto(credential);
     }
 }

@@ -3,8 +3,11 @@ package com.revpasswordmanager.service;
 import com.revpasswordmanager.dto.UserRegistrationDto;
 import com.revpasswordmanager.entity.SecurityQuestion;
 import com.revpasswordmanager.entity.User;
+import com.revpasswordmanager.entity.VerificationCode;
 import com.revpasswordmanager.mapper.UserMapper;
+import com.revpasswordmanager.repository.IVerificationCodeRepository;
 import com.revpasswordmanager.repository.IUserRepository;
+import com.revpasswordmanager.service.IEmailService;
 import com.revpasswordmanager.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,9 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -30,6 +35,12 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private IVerificationCodeRepository verificationCodeRepository;
+
+    @Autowired
+    private IEmailService emailService;
 
     @Transactional
     public User registerUser(UserRegistrationDto registrationDto) {
@@ -153,5 +164,53 @@ public class UserServiceImpl implements IUserService {
 
     public boolean verifyPassword(User user, String rawPassword) {
         return passwordEncoder.matches(rawPassword, user.getMasterPasswordHash());
+    }
+
+    @Override
+    @Transactional
+    public void toggleTwoFactor(String username, boolean enabled) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setTwoFactorEnabled(enabled);
+        userRepository.save(user);
+        logger.info("2FA {} for user: {}", enabled ? "ENABLED" : "DISABLED", username);
+    }
+
+    @Override
+    @Transactional
+    public String generateOtp(User user, String purpose) {
+        String code = String.format("%06d", new Random().nextInt(1000000));
+        VerificationCode verificationCode = new VerificationCode();
+        verificationCode.setUser(user);
+        verificationCode.setCode(code);
+        verificationCode.setPurpose(purpose);
+        verificationCode.setExpiryTime(LocalDateTime.now().plusMinutes(10));
+        verificationCode.setIsUsed(false);
+        verificationCodeRepository.save(verificationCode);
+
+        if ("2FA".equals(purpose)) {
+            emailService.sendOtp(user.getEmail(), code);
+        } else if ("PROFILE_CHANGE".equals(purpose)) {
+            emailService.sendPasswordChangeVerification(user.getEmail(), code);
+        }
+
+        return code;
+    }
+
+    @Override
+    @Transactional
+    public boolean verifyOtp(User user, String code, String purpose) {
+        Optional<VerificationCode> otpOpt = verificationCodeRepository
+                .findByUserAndCodeAndPurposeAndIsUsedFalse(user, code, purpose);
+
+        if (otpOpt.isPresent()) {
+            VerificationCode otp = otpOpt.get();
+            if (otp.getExpiryTime().isAfter(LocalDateTime.now())) {
+                otp.setIsUsed(true);
+                verificationCodeRepository.save(otp);
+                return true;
+            }
+        }
+        return false;
     }
 }

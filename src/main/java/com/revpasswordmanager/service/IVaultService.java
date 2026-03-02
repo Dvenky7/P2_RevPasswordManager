@@ -15,5 +15,7 @@ public interface IVaultService {
 
     String revealPassword(Long id, User user);
 
+    CredentialDto getCredentialById(Long id, User user);
+
     List<CredentialDto> searchCredentials(User user, String query);
 }

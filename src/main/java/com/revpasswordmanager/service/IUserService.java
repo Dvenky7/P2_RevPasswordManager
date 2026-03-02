@@ -21,6 +21,13 @@ public interface IUserService {
 
     boolean verifyPassword(User user, String rawPassword);
 
+    // 2FA and OTP
+    void toggleTwoFactor(String username, boolean enabled);
+
+    String generateOtp(User user, String purpose);
+
+    boolean verifyOtp(User user, String code, String purpose);
+
     User updateUser(User user);
 
     void resetFailedAttempts(String username);
