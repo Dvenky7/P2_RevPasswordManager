@@ -27,7 +27,8 @@ public class SecurityConfig {
                                                                 "/css/**", "/js/**",
                                                                 "/error")
                                                 .permitAll()
-                                                .requestMatchers("/dashboard/**", "/vault/**", "/profile/**", "/api/**")
+                                                .requestMatchers("/dashboard/**", "/vault/**", "/profile/**", "/api/**",
+                                                                "/two-factor/**")
                                                 .hasRole("USER")
                                                 .anyRequest().authenticated())
                                 .formLogin(form -> form

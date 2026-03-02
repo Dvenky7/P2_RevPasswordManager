@@ -17,6 +17,9 @@ public class CryptoUtil {
      * The resulting string is Base64(IV + EncryptedContent).
      */
     public static String encrypt(String rawText, String secretKey) throws Exception {
+        if (rawText == null || secretKey == null) {
+            throw new IllegalArgumentException("Raw text and secret key must not be null");
+        }
         byte[] keyBytes = prepareKey(secretKey);
         SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
 

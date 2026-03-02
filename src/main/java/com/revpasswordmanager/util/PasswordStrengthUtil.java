@@ -18,7 +18,7 @@ public class PasswordStrengthUtil {
             score++;
         if (password.matches(".*[0-9].*"))
             score++;
-        if (password.matches(".*[!@#$%^&*()\\-_=+[\\]{}|;:,.<>?].*"))
+        if (password.matches(".*[!@#$%^&*()\\-_=+\\[\\]{}|;:,.<>?].*"))
             score++;
 
         if (score < 3)
