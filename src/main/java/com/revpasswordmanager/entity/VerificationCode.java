@@ -35,9 +35,10 @@ public class VerificationCode {
     @Column(name = "is_used", columnDefinition = "NUMBER(1) DEFAULT 0")
     private Boolean isUsed = false;
 
+    @Column(name = "failed_attempts", columnDefinition = "NUMBER DEFAULT 0")
+    private Integer failedAttempts = 0;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 }
-
-

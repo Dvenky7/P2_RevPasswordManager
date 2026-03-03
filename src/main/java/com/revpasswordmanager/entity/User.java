@@ -33,8 +33,8 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "phone_number", length = 20)
-    private String phoneNumber;
+    @Column(name = "mobile", length = 20)
+    private String mobile;
 
     @Column(name = "two_factor_enabled", columnDefinition = "NUMBER(1) DEFAULT 0")
     private Boolean twoFactorEnabled = false;
@@ -106,12 +106,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getMobile() {
+        return mobile;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public Boolean getTwoFactorEnabled() {
