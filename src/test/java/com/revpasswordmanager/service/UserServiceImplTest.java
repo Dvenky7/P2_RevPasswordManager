@@ -73,7 +73,8 @@ public class UserServiceImplTest {
         // Then
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getUsername()).isEqualTo("testuser");
-        verify(userRepository, times(1)).save(any(User.class));
+        assertThat(savedUser.isEnabled()).isFalse();
+        verify(userRepository, atLeastOnce()).save(any(User.class));
     }
 
     @Test

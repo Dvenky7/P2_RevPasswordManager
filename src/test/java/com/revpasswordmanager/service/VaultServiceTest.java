@@ -82,4 +82,32 @@ public class VaultServiceTest {
 
         verify(credentialRepository, times(1)).delete(credential);
     }
+
+    @Test
+    public void testExportVault_Success() throws Exception {
+        java.util.List<com.revpasswordmanager.entity.Credential> credentials = java.util.List.of(credential);
+        when(credentialRepository.findByUser(user)).thenReturn(credentials);
+        when(credentialMapper.toDto(credential)).thenReturn(credentialDto);
+
+        byte[] exported = vaultService.exportVault(user);
+        assertNotNull(exported);
+    }
+
+    @Test
+    public void testImportVault_Success() throws Exception {
+        // Prepare some mock data
+        java.util.List<CredentialDto> dtos = java.util.List.of(credentialDto);
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        String json = mapper.writeValueAsString(dtos);
+        String encrypted = com.revpasswordmanager.util.CryptoUtil.encrypt(json, "testSecretKey12345");
+        byte[] data = encrypted.getBytes();
+
+        when(credentialMapper.toEntity(any())).thenReturn(credential);
+        when(credentialRepository.save(any())).thenReturn(credential);
+        when(credentialMapper.toDto(any())).thenReturn(credentialDto);
+
+        vaultService.importVault(user, data);
+
+        verify(credentialRepository, atLeastOnce()).save(any());
+    }
 }
