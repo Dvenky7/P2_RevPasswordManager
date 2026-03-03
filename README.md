@@ -1,44 +1,27 @@
-# RevPasswordManager - Secure Password Vault
+# RevVault - Secure Password Manager
 
-A full-stack monolithic web application to securely store and manage passwords.
+RevVault is a professional, full-stack password management solution built with Spring Boot and Thymeleaf. It features AES-256 vault encryption, two-factor authentication, and a comprehensive security audit system.
+
+## Features
+- **Secure Vault**: Encrypted storage for all your credentials.
+- **2FA Protection**: Extra layer of security via email-based OTP.
+- **Security Audit**: Identifies weak, reused, and old passwords.
+- **Password Generator**: High-entropy password creation with vault integration.
+- **Export/Import**: Secure, encrypted backups of your vault.
 
 ## Tech Stack
-- **Backend**: Java 17, Spring Boot 3, Spring Data JPA, Spring Security
-- **Database**: Oracle DB
-- **Frontend**: Thymeleaf, HTML5, CSS3 (Bootstrap 5), JavaScript
-- **Security**: AES-128 Encryption, BCrypt Hashing
+- **Backend**: Java 17, Spring Boot 3.x, Spring Security, Spring Data JPA.
+- **Frontend**: Thymeleaf, Bootstrap 5.3, Vanilla CSS/JS.
+- **Database**: H2 (Development) / Oracle/MySQL (Production ready).
+- **Security**: AES-256 (Vault), BCrypt (Passwords), Log4j2 (Audit Logging).
 
-## Prerequisites
-- Java 17 or higher
-- Maven installed (or use included `mvnw`)
-- Running Oracle DB instance (Credentials: `revpass/revpass` on `localhost:1521/FREEPDB1`)
+## Security Implementation
+- **Vault Encryption**: Credentials are encrypted using AES-256. The secret key is managed securely via application properties.
+- **Master Password**: Never stored in plain text. Hashed using BCrypt.
+- **Database Security**: All sensitive fields (passwords, 2FA codes, security answers) are either hashed or encrypted.
 
-## Getting Started
-
-1. **Configure Database**:
-   Verify the credentials in `src/main/resources/application.properties`.
-
-2. **Run the Application**:
-   Open a terminal in the project root and run:
-   ```bash
-   mvn spring-boot:run
-   ```
-   (Alternatively, use `.\mvnw.cmd spring-boot:run` on Windows)
-
-3. **Access the Web UI**:
-   - **Register**: [http://localhost:8080/register](http://localhost:8080/register)
-   - **Login**: [http://localhost:8080/login](http://localhost:8080/login)
-   - **Dashboard**: Access after logging in to manage your vault.
-
-## Core Features
-- **User Authentication**: Secure registration and login.
-- **Encrypted Vault**: Store your passwords with AES-128 encryption.
-- **Password Generator**: Create strong, customizable passwords with a strength indicator.
-- **Responsive Design**: Modern UI that works across various screen sizes.
-
-## Project Structure
-- `com.revpasswordmanager.entity`: JPA Entities based on the ER diagram.
-- `com.revpasswordmanager.repository`: Data access layer.
-- `com.revpasswordmanager.service`: Business logic (Vault, Encryption, Security).
-- `com.revpasswordmanager.controller`: MVC Controllers for UI navigation.
-- `src/main/resources/templates`: Thymeleaf templates for the UI.
+## Setup Instructions
+1. Clone the repository.
+2. Configure `application.properties` with your mail server and secret key.
+3. Run `mvn spring-boot:run`.
+4. Access at `http://localhost:8081`.
