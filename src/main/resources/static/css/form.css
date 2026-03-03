@@ -1,0 +1,86 @@
+/* 
+   Shared Styles for Add/Edit Credential Forms
+*/
+
+body {
+    background-color: var(--bg-main);
+}
+
+.form-container {
+    max-width: 680px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    padding: var(--s-lg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: var(--s-lg);
+}
+
+.form-header h2 {
+    color: var(--primary);
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    color: var(--text-muted);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    background-color: #fcfdfe;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    background-color: #ffffff;
+}
+
+.btn-generate {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: var(--primary);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-generate:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.input-group-text {
+    background: #f8fafc;
+    border-color: var(--border-color);
+    color: var(--text-muted);
+    border-radius: 10px 0 0 10px;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1.5rem;
+        margin: 0 1rem;
+    }
+}

@@ -1,0 +1,56 @@
+/* 
+   Password Generator Page Styles
+*/
+
+.generator-grid {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: var(--s-lg);
+    align-items: start;
+}
+
+.option-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--s-sm) var(--s-md);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--s-xs);
+    box-shadow: var(--shadow-sm);
+}
+
+.option-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+}
+
+.option-pass {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--text-main);
+    letter-spacing: 0.5px;
+    font-size: 1.1rem;
+    word-break: break-all;
+}
+
+.uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Custom Range Input Styling (Minimal) */
+.form-range::-webkit-slider-thumb {
+    background: var(--primary);
+}
+
+.form-range::-moz-range-thumb {
+    background: var(--primary);
+}
+
+.form-range::-ms-thumb {
+    background: var(--primary);
+}

@@ -1,0 +1,71 @@
+/* 
+   Profile and Security Page Specific Styles
+*/
+
+.profile-card {
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    height: 100%;
+}
+
+.profile-card-header {
+    padding: var(--s-sm) var(--s-md);
+    border-bottom: 1px solid var(--border-color);
+    background-color: #fcfdfe;
+    display: flex;
+    align-items: center;
+    gap: var(--s-sm);
+}
+
+.profile-card-header i {
+    font-size: 1.25rem;
+    color: var(--primary);
+}
+
+.profile-card-body {
+    padding: var(--s-md);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-badge-success {
+    background-color: #ecfdf5;
+    color: #059669;
+}
+
+.status-badge-warning {
+    background-color: #fffbeb;
+    color: #d97706;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.security-section {
+    padding-top: var(--s-md);
+    margin-top: var(--s-md);
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 991px) {
+    .profile-card-body {
+        padding: 1.5rem;
+    }
+}
