@@ -4,4 +4,6 @@ public interface IEmailService {
     void sendOtp(String to, String otp);
 
     void sendPasswordChangeVerification(String to, String otp);
+
+    void sendRegistrationOtp(String to, String otp);
 }

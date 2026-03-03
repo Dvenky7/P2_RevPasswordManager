@@ -20,4 +20,8 @@ public interface IVaultService {
     List<CredentialDto> searchCredentials(User user, String query);
 
     List<CredentialDto> getVaultEntries(User user, String query, String category, String sortBy);
+
+    byte[] exportVault(User user) throws Exception;
+
+    void importVault(User user, byte[] data) throws Exception;
 }

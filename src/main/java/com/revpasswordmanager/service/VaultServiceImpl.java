@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -153,5 +155,31 @@ public class VaultServiceImpl implements IVaultService {
             throw new InvalidMasterPasswordException("Unauthorized access to credential");
         }
         return credentialMapper.toDto(credential);
+    }
+
+    public byte[] exportVault(User user) throws Exception {
+        List<CredentialDto> credentials = getCredentialsByUser(user);
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(credentials);
+        String encrypted = CryptoUtil.encrypt(json, secretKey);
+        return encrypted.getBytes();
+    }
+
+    @Transactional
+    public void importVault(User user, byte[] data) throws Exception {
+        String encrypted = new String(data);
+        String json = CryptoUtil.decrypt(encrypted, secretKey);
+        ObjectMapper mapper = new ObjectMapper();
+        List<CredentialDto> credentials = mapper.readValue(json,
+                new TypeReference<List<CredentialDto>>() {
+                });
+
+        for (CredentialDto dto : credentials) {
+            // Check if credential already exists by account name and username
+            // Simple approach: Always add as new, or we could update.
+            // Requirement says "Import", so we add them.
+            dto.setId(null); // Ensure it's treated as new
+            addCredential(user, dto);
+        }
     }
 }

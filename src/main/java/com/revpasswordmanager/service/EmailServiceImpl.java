@@ -29,7 +29,22 @@ public class EmailServiceImpl implements IEmailService {
         logger.info("Password change verification OTP sent to: {}", to);
     }
 
+    @Override
+    public void sendRegistrationOtp(String to, String otp) {
+        String subject = "RevVault Registration Verification";
+        String body = "Welcome to RevVault! Your verification code is: " + otp;
+        sendEmail(to, subject, body);
+        logger.info("Registration OTP sent to: {}", to);
+    }
+
     private void sendEmail(String to, String subject, String body) {
+        // Log to console for simulation/debugging
+        System.out.println("========================================");
+        System.out.println("SIMULATED EMAIL TO: " + to);
+        System.out.println("SUBJECT: " + subject);
+        System.out.println("BODY: " + body);
+        System.out.println("========================================");
+
         logger.debug("Attempting to send email to {} with subject: {}", to, subject);
         try {
             org.springframework.mail.SimpleMailMessage message = new org.springframework.mail.SimpleMailMessage();

@@ -23,8 +23,10 @@ public class SecurityConfig {
                 http
                                 .csrf(Customizer.withDefaults())
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/register", "/login", "/forgot-password/**",
-                                                                "/css/**", "/js/**", "/favicon.ico",
+                                                .requestMatchers("/", "/register", "/register/verify", "/login",
+                                                                "/login/verify-2fa",
+                                                                "/forgot-password/**", "/css/**", "/js/**",
+                                                                "/favicon.ico",
                                                                 "/error")
                                                 .permitAll()
                                                 .requestMatchers("/dashboard/**", "/vault/**", "/profile/**", "/api/**",

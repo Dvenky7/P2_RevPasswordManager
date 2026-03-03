@@ -64,8 +64,9 @@ public class AuthController {
         }
         try {
             userService.registerUser(registrationDto);
-            logger.info("User registered successfully: {}", registrationDto.getUsername());
-            return "redirect:/login?success";
+            logger.info("User registered successfully. Redirecting to verification for: {}",
+                    registrationDto.getUsername());
+            return "redirect:/register/verify?username=" + registrationDto.getUsername();
         } catch (Exception e) {
             logger.error("Error during user registration for {}: {}", registrationDto.getUsername(), e.getMessage());
             model.addAttribute("error", e.getMessage());
@@ -172,6 +173,64 @@ public class AuthController {
                     .collect(Collectors.toList());
             model.addAttribute("questions", questions);
             return "profile_verify_change";
+        }
+    }
+
+    @GetMapping("/register/verify")
+    public String showRegisterVerify(@RequestParam("username") String username, Model model) {
+        model.addAttribute("username", username);
+        return "register_verify";
+    }
+
+    @PostMapping("/register/verify")
+    public String verifyRegister(@RequestParam("username") String username,
+            @RequestParam("otp") String otp,
+            Model model) {
+        try {
+            User user = userService.findByUsername(username)
+                    .orElseThrow(() -> new Exception("User not found"));
+
+            if (userService.verifyOtp(user, otp, "REGISTRATION")) {
+                user.setEnabled(true);
+                userService.updateUser(user);
+                logger.info("User verified and enabled: {}", username);
+                return "redirect:/login?verified";
+            } else {
+                model.addAttribute("error", "Invalid verification code");
+                model.addAttribute("username", username);
+                return "register_verify";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("username", username);
+            return "register_verify";
+        }
+    }
+
+    @GetMapping("/login/verify-2fa")
+    public String showLoginVerify2fa(Authentication authentication, Model model) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+        return "login_verify_2fa";
+    }
+
+    @PostMapping("/login/verify-2fa")
+    public String verifyLogin2fa(@RequestParam("otp") String otp,
+            Authentication authentication, HttpSession session, Model model) {
+        try {
+            User user = userService.findByUsername(authentication.getName()).orElseThrow();
+            if (userService.verifyOtp(user, otp, "2FA")) {
+                session.setAttribute("2fa_verified", true);
+                logger.info("2FA verified for user: {}", user.getUsername());
+                return "redirect:/dashboard";
+            } else {
+                model.addAttribute("error", "Invalid verification code");
+                return "login_verify_2fa";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "login_verify_2fa";
         }
     }
 }

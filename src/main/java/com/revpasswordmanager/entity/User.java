@@ -45,6 +45,9 @@ public class User {
     @Column(name = "account_locked", columnDefinition = "NUMBER(1) DEFAULT 0")
     private Boolean accountLocked = false;
 
+    @Column(name = "enabled", columnDefinition = "NUMBER(1) DEFAULT 0")
+    private boolean enabled = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -184,5 +187,13 @@ public class User {
 
     public void setVerificationCodes(List<VerificationCode> verificationCodes) {
         this.verificationCodes = verificationCodes;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

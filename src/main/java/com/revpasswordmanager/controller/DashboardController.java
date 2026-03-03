@@ -42,6 +42,7 @@ public class DashboardController {
         long totalPasswords = allCredentials.size();
         long weakPasswordsCount = auditService.findWeakPasswords(user).size();
         long reusedPasswordsCount = auditService.findReusedPasswords(user).size();
+        long oldPasswordsCount = auditService.findOldPasswords(user, 90).size();
 
         List<CredentialDto> recentlyAdded = allCredentials.stream()
                 .limit(5)
@@ -52,6 +53,7 @@ public class DashboardController {
         model.addAttribute("totalPasswords", totalPasswords);
         model.addAttribute("weakPasswordsCount", weakPasswordsCount);
         model.addAttribute("reusedPasswordsCount", reusedPasswordsCount);
+        model.addAttribute("oldPasswordsCount", oldPasswordsCount);
         model.addAttribute("recentlyAdded", recentlyAdded);
 
         model.addAttribute("query", query);

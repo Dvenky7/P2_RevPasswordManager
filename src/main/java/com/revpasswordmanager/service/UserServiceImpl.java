@@ -72,8 +72,13 @@ public class UserServiceImpl implements IUserService {
         }
 
         user.setSecurityQuestions(securityQuestions);
+        user.setEnabled(false); // New users are disabled until OTP verification
         User savedUser = userRepository.save(user);
-        logger.info("New user registered successfully: {}", savedUser.getUsername());
+
+        // Generate Registration OTP
+        generateOtp(savedUser, "REGISTRATION");
+
+        logger.info("New user registered successfully (pending verification): {}", savedUser.getUsername());
         return savedUser;
     }
 
@@ -196,6 +201,8 @@ public class UserServiceImpl implements IUserService {
             emailService.sendOtp(user.getEmail(), code);
         } else if ("PROFILE_CHANGE".equals(purpose) || "FORGOT_PASSWORD".equals(purpose)) {
             emailService.sendPasswordChangeVerification(user.getEmail(), code);
+        } else if ("REGISTRATION".equals(purpose)) {
+            emailService.sendRegistrationOtp(user.getEmail(), code);
         }
 
         return code;
