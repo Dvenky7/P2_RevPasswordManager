@@ -38,8 +38,10 @@ public class SecurityConfig {
                                                 .defaultSuccessUrl("/dashboard", true)
                                                 .failureHandler((request, response, exception) -> {
                                                         String errorMessage = "error";
-                                                        if (exception.getMessage().contains("locked")) {
+                                                        if (exception instanceof org.springframework.security.authentication.LockedException) {
                                                                 errorMessage = "locked";
+                                                        } else if (exception instanceof org.springframework.security.authentication.DisabledException) {
+                                                                errorMessage = "disabled";
                                                         }
                                                         response.sendRedirect("/login?" + errorMessage);
                                                 })

@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(AuthController.class)
+@org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
 
     @Autowired
@@ -38,6 +39,13 @@ public class UserControllerTest {
                 .param("username", "newuser")
                 .param("email", "new@example.com")
                 .param("masterPassword", "password123")
+                .param("name", "New User")
+                .param("securityQuestion1", "Question 1")
+                .param("securityAnswer1", "Answer 1")
+                .param("securityQuestion2", "Question 2")
+                .param("securityAnswer2", "Answer 2")
+                .param("securityQuestion3", "Question 3")
+                .param("securityAnswer3", "Answer 3")
                 .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?success"));
