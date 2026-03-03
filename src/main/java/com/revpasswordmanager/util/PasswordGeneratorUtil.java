@@ -42,7 +42,7 @@ public class PasswordGeneratorUtil {
         }
 
         if (charPool.length() == 0) {
-            charPool.append(l); // Fallback to lowercase
+            charPool.append(l);
         }
 
         StringBuilder password = new StringBuilder();

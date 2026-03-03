@@ -24,7 +24,7 @@ public class SecurityConfig {
                                 .csrf(Customizer.withDefaults())
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", "/register", "/login", "/forgot-password/**",
-                                                                "/css/**", "/js/**",
+                                                                "/css/**", "/js/**", "/favicon.ico",
                                                                 "/error")
                                                 .permitAll()
                                                 .requestMatchers("/dashboard/**", "/vault/**", "/profile/**", "/api/**",

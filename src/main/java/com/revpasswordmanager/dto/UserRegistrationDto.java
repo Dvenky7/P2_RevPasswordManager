@@ -22,7 +22,7 @@ public class UserRegistrationDto {
     @NotBlank(message = "Name is required")
     private String name;
 
-    private String phoneNumber;
+    private String mobile;
 
     @NotBlank(message = "Security question 1 is required")
     private String securityQuestion1;

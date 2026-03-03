@@ -66,6 +66,21 @@ public class GlobalExceptionHandler {
         return handleException(ex, HttpStatus.UNAUTHORIZED, request, model);
     }
 
+    @ExceptionHandler(OtpExpiredException.class)
+    public Object handleOtpExpired(OtpExpiredException ex, HttpServletRequest request, Model model) {
+        return handleException(ex, HttpStatus.GONE, request, model);
+    }
+
+    @ExceptionHandler(OtpLimitExceededException.class)
+    public Object handleOtpLimitExceeded(OtpLimitExceededException ex, HttpServletRequest request, Model model) {
+        return handleException(ex, HttpStatus.TOO_MANY_REQUESTS, request, model);
+    }
+
+    @ExceptionHandler(EmailDeliveryException.class)
+    public Object handleEmailDelivery(EmailDeliveryException ex, HttpServletRequest request, Model model) {
+        return handleException(ex, HttpStatus.SERVICE_UNAVAILABLE, request, model);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Object handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request,
             Model model) {
@@ -92,6 +107,17 @@ public class GlobalExceptionHandler {
             model.addAttribute("validationErrors", errors);
             return "error";
         }
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public Object handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex,
+            HttpServletRequest request, Model model) {
+        if (request.getRequestURI().endsWith("favicon.ico")) {
+            log.trace("Favicon not found: {}", request.getRequestURI());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        log.warn("Resource not found: {} - {}", request.getRequestURI(), ex.getMessage());
+        return handleException(ex, HttpStatus.NOT_FOUND, request, model);
     }
 
     @ExceptionHandler(Exception.class)
