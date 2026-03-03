@@ -33,10 +33,10 @@ public class PasswordGeneratorController {
             Model model) {
 
         List<String> passwords = generatorService.generatePasswords(length, useUpper, useLower, useDigits, useSpecial,
-                excludeSimilar, 1);
-        String generatedPassword = passwords.isEmpty() ? "" : passwords.get(0);
+                excludeSimilar, 10);
 
-        model.addAttribute("generatedPassword", generatedPassword);
+        model.addAttribute("passwords", passwords);
+        model.addAttribute("generatedPassword", passwords.isEmpty() ? "" : passwords.get(0));
         model.addAttribute("length", length);
         model.addAttribute("upper", useUpper);
         model.addAttribute("lower", useLower);
@@ -44,8 +44,10 @@ public class PasswordGeneratorController {
         model.addAttribute("special", useSpecial);
         model.addAttribute("excludeSimilar", excludeSimilar);
 
-        // Add strength for the template
-        model.addAttribute("strength", generatorService.calculateStrength(generatedPassword));
+        // Add strength for the first password
+        if (!passwords.isEmpty()) {
+            model.addAttribute("strength", generatorService.calculateStrength(passwords.get(0)));
+        }
 
         return "password_generator";
     }

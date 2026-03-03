@@ -53,6 +53,13 @@ public class AuthController {
         logger.info("Attempting to register new user with username: {}", registrationDto.getUsername());
         if (bindingResult.hasErrors()) {
             logger.warn("Registration form has errors for user: {}", registrationDto.getUsername());
+            bindingResult.getAllErrors().forEach(error -> {
+                logger.warn("Validation error: {} - {}",
+                        (error instanceof org.springframework.validation.FieldError)
+                                ? ((org.springframework.validation.FieldError) error).getField()
+                                : error.getObjectName(),
+                        error.getDefaultMessage());
+            });
             return "register";
         }
         try {
@@ -69,6 +76,7 @@ public class AuthController {
     @PostMapping("/profile/update")
     public String updateProfile(@RequestParam("name") String name,
             @RequestParam("email") String email,
+            @RequestParam("mobile") String mobile,
             @RequestParam(value = "newPassword", required = false) String newPassword,
             @RequestParam(value = "oldPassword", required = false) String oldPassword,
             Authentication authentication, HttpSession session, Model model) {
@@ -86,6 +94,7 @@ public class AuthController {
                 session.setAttribute("pendingOldPassword", oldPassword);
                 session.setAttribute("pendingName", name);
                 session.setAttribute("pendingEmail", email);
+                session.setAttribute("pendingMobile", mobile);
 
                 userService.generateOtp(user, "PROFILE_CHANGE");
 
@@ -93,6 +102,7 @@ public class AuthController {
             } else {
                 user.setName(name);
                 user.setEmail(email);
+                user.setMobile(mobile);
                 userService.updateUser(user);
                 return "redirect:/profile?success";
             }
@@ -125,6 +135,7 @@ public class AuthController {
         String oldPassword = (String) session.getAttribute("pendingOldPassword");
         String name = (String) session.getAttribute("pendingName");
         String email = (String) session.getAttribute("pendingEmail");
+        String mobile = (String) session.getAttribute("pendingMobile");
 
         if (newPassword == null)
             return "redirect:/profile";
@@ -143,12 +154,14 @@ public class AuthController {
             // All verified, apply changes
             user.setName(name);
             user.setEmail(email);
+            user.setMobile(mobile);
             userService.updateMasterPassword(user, oldPassword, newPassword);
 
             session.removeAttribute("pendingNewPassword");
             session.removeAttribute("pendingOldPassword");
             session.removeAttribute("pendingName");
             session.removeAttribute("pendingEmail");
+            session.removeAttribute("pendingMobile");
 
             return "redirect:/profile?success";
         } catch (Exception e) {

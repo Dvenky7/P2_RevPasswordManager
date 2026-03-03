@@ -9,15 +9,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.nio.charset.StandardCharsets;
 
 @Controller
-@RequestMapping("/backup")
+@RequestMapping("/vault")
 public class BackupController {
 
     @Autowired
@@ -26,35 +25,40 @@ public class BackupController {
     @Autowired
     private IUserService userService;
 
-    @GetMapping
-    public String showBackupPage() {
-        return "backup";
-    }
-
     @GetMapping("/export")
-    public ResponseEntity<byte[]> exportVault(Authentication authentication) throws Exception {
+    public ResponseEntity<byte[]> exportVault(Authentication authentication) {
         User user = userService.findByUsername(authentication.getName()).orElseThrow();
-        String encryptedJson = backupService.exportVault(user);
+        String encryptedContent = backupService.exportVault(user);
 
-        byte[] data = encryptedJson.getBytes();
-        String filename = "vault_backup_" + user.getUsername() + ".rev";
+        byte[] data = encryptedContent.getBytes(StandardCharsets.UTF_8);
+        String filename = "vault_export_" + user.getUsername() + ".rev";
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(data.length)
                 .body(data);
     }
 
     @PostMapping("/import")
-    public String importVault(@RequestParam("file") MultipartFile file, Authentication authentication, Model model) {
+    public String importVault(@RequestParam("file") MultipartFile file,
+            @RequestParam("masterPassword") String masterPassword,
+            Authentication authentication, RedirectAttributes redirectAttributes) {
+        User user = userService.findByUsername(authentication.getName()).orElseThrow();
         try {
-            User user = userService.findByUsername(authentication.getName()).orElseThrow();
-            String encryptedJson = new String(file.getBytes());
-            backupService.importVault(user, encryptedJson);
+            if (!userService.verifyPassword(user, masterPassword)) {
+                return "redirect:/dashboard?error=invalid_password";
+            }
+
+            if (file.isEmpty()) {
+                return "redirect:/dashboard?error=empty_file";
+            }
+
+            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
+            backupService.importVault(user, content);
             return "redirect:/dashboard?success=imported";
         } catch (Exception e) {
-            model.addAttribute("error", "Failed to import backup: " + e.getMessage());
-            return "backup";
+            return "redirect:/dashboard?error=import_failed";
         }
     }
 }

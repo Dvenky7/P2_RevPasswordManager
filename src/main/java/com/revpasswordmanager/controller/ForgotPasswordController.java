@@ -32,6 +32,12 @@ public class ForgotPasswordController {
         return userService.findByUsername(username)
                 .map(user -> {
                     session.setAttribute("forgotPasswordUser", username);
+                    try {
+                        userService.generateOtp(user, "FORGOT_PASSWORD");
+                    } catch (Exception e) {
+                        model.addAttribute("error", "Failed to send verification code. Please try again later.");
+                        return "forgot_password_request";
+                    }
                     return "redirect:/forgot-password/verify";
                 })
                 .orElseGet(() -> {
@@ -57,22 +63,35 @@ public class ForgotPasswordController {
     }
 
     @PostMapping("/verify")
-    public String processVerify(@RequestParam("answers") List<String> answers, HttpSession session, Model model) {
+    public String processVerify(@RequestParam("otp") String otp,
+            @RequestParam("answers") List<String> answers, HttpSession session, Model model) {
         String username = (String) session.getAttribute("forgotPasswordUser");
         if (username == null) {
             return "redirect:/forgot-password";
         }
 
-        if (userService.verifySecurityQuestions(username, answers)) {
+        try {
+            User user = userService.findByUsernameWithSecurityQuestions(username).orElseThrow();
+
+            // Verify OTP first
+            if (!userService.verifyOtp(user, otp, "FORGOT_PASSWORD")) {
+                throw new Exception("Invalid or expired verification code");
+            }
+
+            // Then verify security questions
+            if (!userService.verifySecurityQuestions(username, answers)) {
+                throw new Exception("Incorrect answers to security questions");
+            }
+
             session.setAttribute("forgotPasswordVerified", true);
             return "redirect:/forgot-password/reset";
-        } else {
+        } catch (Exception e) {
             User user = userService.findByUsernameWithSecurityQuestions(username).orElseThrow();
             List<String> questions = user.getSecurityQuestions().stream()
                     .map(SecurityQuestion::getQuestion)
                     .collect(Collectors.toList());
             model.addAttribute("questions", questions);
-            model.addAttribute("error", "Incorrect answers to security questions");
+            model.addAttribute("error", e.getMessage());
             return "forgot_password_verify";
         }
     }

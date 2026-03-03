@@ -18,4 +18,6 @@ public interface IVaultService {
     CredentialDto getCredentialById(Long id, User user);
 
     List<CredentialDto> searchCredentials(User user, String query);
+
+    List<CredentialDto> getVaultEntries(User user, String query, String category, String sortBy);
 }

@@ -25,8 +25,13 @@ public class CredentialController {
     private IUserService userService;
 
     @GetMapping("/add")
-    public String showAddForm(Model model) {
-        model.addAttribute("credential", new CredentialDto());
+    public String showAddForm(@RequestParam(value = "prefilledPassword", required = false) String prefilledPassword,
+            Model model) {
+        CredentialDto dto = new CredentialDto();
+        if (prefilledPassword != null) {
+            dto.setPassword(prefilledPassword);
+        }
+        model.addAttribute("credential", dto);
         return "add_credential";
     }
 
@@ -61,10 +66,21 @@ public class CredentialController {
     }
 
     @PostMapping("/delete")
-    public String deleteCredential(@RequestParam("id") Long id, Authentication authentication) {
-        User user = userService.findByUsername(authentication.getName()).orElseThrow();
-        vaultService.deleteCredential(id, user);
-        return "redirect:/dashboard?success=deleted";
+    public String deleteCredential(@RequestParam("id") Long id,
+            @RequestParam("masterPassword") String masterPassword,
+            Authentication authentication, Model model) {
+        try {
+            User user = userService.findByUsername(authentication.getName()).orElseThrow();
+
+            if (!userService.verifyPassword(user, masterPassword)) {
+                return "redirect:/dashboard?error=invalid_password";
+            }
+
+            vaultService.deleteCredential(id, user);
+            return "redirect:/dashboard?success=deleted";
+        } catch (Exception e) {
+            return "redirect:/dashboard?error=delete_failed";
+        }
     }
 
     @GetMapping("/edit/{id}")

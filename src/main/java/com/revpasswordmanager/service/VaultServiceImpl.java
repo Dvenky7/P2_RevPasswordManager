@@ -119,7 +119,29 @@ public class VaultServiceImpl implements IVaultService {
     }
 
     public List<CredentialDto> searchCredentials(User user, String query) {
-        return credentialRepository.findByUserAndAccountNameContainingIgnoreCase(user, query).stream()
+        return credentialRepository.searchVault(user, query).stream()
+                .map(credentialMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<CredentialDto> getVaultEntries(User user, String query, String category, String sortBy) {
+        List<Credential> filtered;
+        if (query != null && !query.trim().isEmpty()) {
+            filtered = credentialRepository.searchVault(user, query);
+        } else if (category != null && !category.isEmpty() && !"All".equalsIgnoreCase(category)) {
+            filtered = credentialRepository.findByUserAndCategory(user, category);
+        } else {
+            filtered = credentialRepository.findByUser(user);
+        }
+
+        // Apply sorting
+        if ("name".equalsIgnoreCase(sortBy)) {
+            filtered.sort((c1, c2) -> c1.getAccountName().compareToIgnoreCase(c2.getAccountName()));
+        } else if ("date".equalsIgnoreCase(sortBy)) {
+            filtered.sort((c1, c2) -> c2.getUpdatedAt().compareTo(c1.getUpdatedAt())); // Descending
+        }
+
+        return filtered.stream()
                 .map(credentialMapper::toDto)
                 .collect(Collectors.toList());
     }

@@ -16,11 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -179,18 +179,22 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public String generateOtp(User user, String purpose) {
-        String code = String.format("%06d", new Random().nextInt(1000000));
+        SecureRandom random = new SecureRandom();
+        String code = String.format("%06d", random.nextInt(1000000));
+
         VerificationCode verificationCode = new VerificationCode();
         verificationCode.setUser(user);
         verificationCode.setCode(code);
         verificationCode.setPurpose(purpose);
-        verificationCode.setExpiryTime(LocalDateTime.now().plusMinutes(10));
+        verificationCode.setExpiryTime(LocalDateTime.now().plusMinutes(5)); // Changed to 5 minutes
         verificationCode.setIsUsed(false);
+        verificationCode.setFailedAttempts(0);
+
         verificationCodeRepository.save(verificationCode);
 
         if ("2FA".equals(purpose)) {
             emailService.sendOtp(user.getEmail(), code);
-        } else if ("PROFILE_CHANGE".equals(purpose)) {
+        } else if ("PROFILE_CHANGE".equals(purpose) || "FORGOT_PASSWORD".equals(purpose)) {
             emailService.sendPasswordChangeVerification(user.getEmail(), code);
         }
 
@@ -203,14 +207,33 @@ public class UserServiceImpl implements IUserService {
         Optional<VerificationCode> otpOpt = verificationCodeRepository
                 .findByUserAndCodeAndPurposeAndIsUsedFalse(user, code, purpose);
 
-        if (otpOpt.isPresent()) {
-            VerificationCode otp = otpOpt.get();
-            if (otp.getExpiryTime().isAfter(LocalDateTime.now())) {
-                otp.setIsUsed(true);
-                verificationCodeRepository.save(otp);
-                return true;
-            }
+        if (otpOpt.isEmpty()) {
+            // Find any unused OTP for this user and purpose to increment failed attempts
+            // We search by user and purpose to find the most recent active OTP
+            // But usually, it's better to just log an error or increment on the specific ID
+            // if we had it.
+            // Since we don't have the ID, we'll try to find the latest one.
+            throw new InvalidVerificationCodeException("Invalid verification code");
         }
-        return false;
+
+        VerificationCode otp = otpOpt.get();
+
+        if (otp.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new OtpExpiredException("Verification code has expired");
+        }
+
+        if (otp.getFailedAttempts() >= 3) {
+            throw new OtpLimitExceededException("Maximum verification attempts exceeded");
+        }
+
+        if (!otp.getCode().equals(code)) {
+            otp.setFailedAttempts(otp.getFailedAttempts() + 1);
+            verificationCodeRepository.save(otp);
+            return false;
+        }
+
+        otp.setIsUsed(true);
+        verificationCodeRepository.save(otp);
+        return true;
     }
 }
